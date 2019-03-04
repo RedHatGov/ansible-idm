@@ -47,49 +47,6 @@ Example Playbook
 
 ```yaml
 ---
-- hosts: kvm
-  tags: provision
-  become: true
-  vars:
-    domain: "example.com"
-    dns_server_public: 1.1.1.1
-    idm_hostname: idm #Short hostname
-    idm_ssh_user: root
-    idm_ssh_pwd: redhat
-    idm_public_ip: "192.168.0.4"
-    idm_base_img: rhel-guest-image-7.qcow2 #Name of base image in /var/lib/libvirt/images on KVM hypervisor
-    idm_os_disk_name: "{{ idm_hostname }}"
-    idm_nics:
-      - name: eth0
-        bootproto: static
-        onboot: yes
-        ip: "{{ idm_public_ip }}"
-        prefix: "24"
-        gateway: "192.168.0.1"
-        dns_server: "{{ dns_server_public }}"
-        config: "--type bridge --source br1 --model virtio"
-  tasks:
-    - name: Provision IdM VM
-      include_role:
-        name: RedHatGov.idm
-        tasks_from: provision_kvm
-
-    - name: Add IdM to ansible inventory
-      add_host:
-        name: "{{ idm_hostname }}"
-        ansible_host: "{{ idm_public_ip }}"
-        rhsm_consumer_name: "{{ idm_hostname }}.{{ domain }}"
-      changed_when: no
-
-    - name: waiting for IDM ssh to come online
-      wait_for:
-        host: "{{ idm_public_ip }}"
-        port: 22
-        state: started
-        delay: 10
-        connect_timeout: 300
-        sleep: 5
-
 - hosts: idm
   tags: install
   vars:
