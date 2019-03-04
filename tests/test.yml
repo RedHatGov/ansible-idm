@@ -1,5 +1,117 @@
 ---
-- hosts: localhost
-  remote_user: root
-  roles:
-    - idm
+- hosts: kvm
+  tags: provision
+  become: true
+  vars:
+    domain: "example.com"
+    dns_server_public: 1.1.1.1
+    idm_hostname: idm #Short hostname
+    idm_ssh_user: root
+    idm_ssh_pwd: redhat
+    idm_public_ip: "192.168.0.4"
+    idm_base_img: rhel-guest-image-7.qcow2 #Name of base image in /var/lib/libvirt/images on KVM hypervisor
+    idm_os_disk_name: "{{ idm_hostname }}"
+    idm_nics:
+      - name: eth0
+        bootproto: static
+        onboot: yes
+        ip: "{{ idm_public_ip }}"
+        prefix: "24"
+        gateway: "192.168.0.1"
+        dns_server: "{{ dns_server_public }}"
+        config: "--type bridge --source br1 --model virtio"
+  tasks:
+    - name: Provision IdM VM
+      include_role:
+        name: idm
+        tasks_from: provision_kvm
+
+    - name: Add IdM to ansible inventory
+      add_host:
+        name: "{{ idm_hostname }}"
+        ansible_host: "{{ idm_public_ip }}"
+        rhsm_consumer_name: "{{ idm_hostname }}.{{ domain }}"
+      changed_when: no
+
+    - name: waiting for IDM ssh to come online
+      wait_for:
+        host: "{{ idm_public_ip }}"
+        port: 22
+        state: started
+        delay: 10
+        connect_timeout: 300
+        sleep: 5
+
+- hosts: idm
+  tags: install
+  vars:
+    domain: "example.com"
+    dns_server_public: 1.1.1.1
+    idm_hostname: idm #Short hostname
+    idm_ssh_user: root
+    idm_ssh_pwd: redhat
+    idm_public_ip: "192.168.0.4"
+    idm_base_img: rhel-guest-image-7.qcow2 #Name of base image in /var/lib/libvirt/images on KVM hypervisor
+    idm_os_disk_name: "{{ idm_hostname }}"
+    idm_nics:
+      - name: eth0
+        bootproto: static
+        onboot: yes
+        ip: "{{ idm_public_ip }}"
+        prefix: "24"
+        gateway: "192.168.0.1"
+        dns_server: "{{ dns_server_public }}"
+        config: "--type bridge --source br1 --model virtio"
+    idm_repos:
+      - rhel-7-server-rpms
+      - rhel-7-server-extras-rpms
+      - rhel-7-server-optional-rpms
+    idm_packages:
+      - ipa-server
+      - ipa-server-dns
+    idm_realm: "{{ domain | upper }}"
+    idm_dm_pwd: "Redhat1993"
+    idm_admin_pwd: "Redhat1993"
+    idm_forward_ip: "{{ dns_server_public }}"
+    idm_reverse_zone: "168.192.in-addr.arpa."
+    idm_users:
+       - username: operator
+         password: redhat1234
+         display_name: "Operator"
+         first_name: Oper
+         last_name: Ator
+         email: "operator@redhat.com"
+         phone: "+18887334281"
+         title: "Systems Administrator"
+    idm_dns_records:
+       - hostname: router
+         record_type: A
+         ip_address: 192.168.0.1
+         reverse_record: 1.0
+       - hostname: switch
+         record_type: A
+         ip_address: 192.168.0.2
+         reverse_record: 2.0
+       - hostname: kvm
+         record_type: A
+         ip_address: 192.168.0.3
+         reverse_record: 3.0
+  tasks:
+    - name: Register to RHSM
+      vars:
+        rhsm_repos: "{{ idm_repos }}"
+      include_role:
+        name: RedHatGov.rhsm
+      tags: install
+
+    - name: Install IDM
+      include_role:
+        name: idm
+      tags: install
+
+    - name: Configure IDM
+      include_role:
+        name: idm
+        tasks_from: post_config
+      tags: post-config
+
