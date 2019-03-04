@@ -70,8 +70,8 @@
 
 - name: disable dns forwarding on IDM server for disconnected install
   shell: >
-    echo '{{ idm_admin_pwd }}' | kinit admin && ipa dnsserver-mod --forward-policy=none
-    {{ idm_hostname }}.{{ domain }}
+    "echo '{{ idm_admin_pwd }}' | kinit admin && ipa dnsserver-mod --forward-policy=none
+    {{ idm_hostname }}.{{ domain }}"
   ignore_errors: true
   when: idm_forward_ip is not defined
   changed_when: false

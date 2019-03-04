@@ -46,6 +46,7 @@ Example Playbook
 ----------------
 
 ```yaml
+---
 - hosts: kvm
   tags: provision
   become: true
