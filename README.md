@@ -15,6 +15,7 @@ Role Variables
 | Variable        | Required | Default  | Description                                                                                                                                                                                                                                     |
 | --------------- | -------- | -------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `domain` | :x:      | ```hattrick.lab``` | The domain for the environment |
+| `dns_server_public` | :x:      | ```1.1.1.1``` | The default upstream DNS server to use |
 | `idm_hostname` | :heavy_check_mark:      |  | The short hostname for IdM |
 | `idm_ssh_user` | :x:      | ```root``` | The default user to use for SSH access to IdM |
 | `idm_ssh_pwd` | :x:      | ```p@ssw0rd``` | The default password to use for SSH access to IdM. Obviously you'd change this :) |
@@ -30,7 +31,7 @@ Role Variables
 | `idm_realm` | :heavy_check_mark:      |  | Identity Realm for IdM (ex: HATTRICK.LAB) |
 | `idm_dm_pwd` | :heavy_check_mark:      |  | Identity Realm for IdM (ex: HATTRICK.LAB) |
 | `idm_admin_pwd` | :heavy_check_mark:      |  | Password for admin user for IdM |
-| `idm_forward_ip` | :heavy_check_mark:      |  | IP of Upstream DNS to set as the forwarder (for disconnected, don't set a forward IP) |
+| `idm_forward_ip` | :heavy_check_mark:      | ```{{ dns_server_public }}```  | IP of Upstream DNS to set as the forwarder (for disconnected, don't set a forward IP) |
 | `idm_reverse_zone` | :heavy_check_mark:      |  | Reverse zone to create in IdM (ex: "168.192.in-addr.arpa.") |
 | `idm_users` | :heavy_check_mark:      |  | Dictionary of users to create in IdM post configuration |
 | `idm_dns_records` | :heavy_check_mark:      |  | Dictionary of DNS records to create in IdM post configuration |
