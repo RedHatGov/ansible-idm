@@ -39,8 +39,8 @@ Role Variables
 Dependencies
 ------------
 
-- redhatgov.kvm_vm
-- redhatgov.rhsm
+- RedHatGov.kvm_vm
+- RedHatGov.rhsm
 
 Example Playbook
 ----------------
@@ -71,7 +71,7 @@ Example Playbook
   tasks:
     - name: Provision IdM VM
       include_role:
-        name: idm
+        name: RedHatGov.idm
         tasks_from: provision_kvm
 
     - name: Add IdM to ansible inventory
@@ -149,7 +149,7 @@ Example Playbook
       vars:
         rhsm_repos: "{{ idm_repos }}"
       include_role:
-        name: redhatgov.rhsm
+        name: RedHatGov.rhsm
       tags: install
 
     - name: Install IDM
