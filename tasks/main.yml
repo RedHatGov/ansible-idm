@@ -20,7 +20,8 @@
   poll: 30
 
 - name: check Kernel is the Latest
-  shell: if [ $(uname -r) == $(rpm -q kernel | tail -n 1 | sed -e 's/kernel-//g') ] ; then echo no ; else echo reboot; fi
+  shell: >
+    if [ $(uname -r) == $(rpm -q kernel | tail -n 1 | sed -e 's/kernel-//g') ] ; then echo no ; else echo reboot; fi
   ignore_errors: true
   register: reboot_hint
 
@@ -44,11 +45,16 @@
     timeout: 300
 
 - name: Set up IPA Server
-  command: ipa-server-install -Uq -r '{{ idm_realm }}' -n '{{ domain }}' --allow-zone-overlap -p '{{ idm_dm_pwd }}' -a '{{ idm_admin_pwd }}' --setup-dns --auto-reverse --reverse-zone '{{ idm_reverse_zone }}' --forwarder '{{ idm_forward_ip }}'
+  command: >
+    ipa-server-install -Uq -r '{{ idm_realm }}' -n '{{ domain }}' --allow-zone-overlap -p '{{ idm_dm_pwd }}'
+    -a '{{ idm_admin_pwd }}' --setup-dns --auto-reverse --reverse-zone '{{ idm_reverse_zone }}'
+    --forwarder '{{ idm_forward_ip }}'
   when: idm_forward_ip is defined
 
 - name: Set up IPA Server (without DNS forwarding)
-  command: ipa-server-install -Uq -r '{{ idm_realm }}' -n '{{ domain }}' --allow-zone-overlap -p '{{ idm_dm_pwd }}' -a '{{ idm_admin_pwd }}' --setup-dns --auto-reverse --reverse-zone '{{ idm_reverse_zone }}' --no-forwarders
+  command: >
+    ipa-server-install -Uq -r '{{ idm_realm }}' -n '{{ domain }}' --allow-zone-overlap -p '{{ idm_dm_pwd }}'
+    -a '{{ idm_admin_pwd }}' --setup-dns --auto-reverse --reverse-zone '{{ idm_reverse_zone }}' --no-forwarders
   when: idm_forward_ip is not defined
 
 - name: waiting for IDM services to come up
@@ -61,7 +67,9 @@
     sleep: 5
 
 - name: disable dns forwarding on IDM server for disconnected install
-  shell: "echo '{{ idm_admin_pwd }}' | kinit admin && ipa dnsserver-mod --forward-policy=none {{ idm_hostname }}.{{ domain }}"
+  shell: >
+    echo '{{ idm_admin_pwd }}' | kinit admin && ipa dnsserver-mod --forward-policy=none
+    {{ idm_hostname }}.{{ domain }}
   ignore_errors: true
   when: idm_forward_ip is not defined
 
