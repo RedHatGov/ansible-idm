@@ -16,6 +16,4 @@ galaxy_info:
     - idm
     - rhel
 
-dependencies:
-  - RedHatGov.kvm_vm
-  - RedHatGov.rhsm
+dependencies: []
