@@ -29,7 +29,7 @@
     if [ $(uname -r) == $(rpm -q kernel | tail -n 1 | sed -e 's/kernel-//g') ] ; then echo no ; else echo reboot; fi
   ignore_errors: true
   register: reboot_hint
-  changed_when: "reboot" in reboot_hint.stdout
+  changed_when: '"reboot" in reboot_hint.stdout'
   notify: reboot system
 
 - name: flush hanlers
@@ -49,7 +49,7 @@
     --forwarder '{{ idm_forward_ip }}'
   when: idm_forward_ip is defined
   register: ipa_server_install_results
-  changed_when: "success" in ipa_server_install_results.stdout
+  changed_when: '"success" in ipa_server_install_results.stdout'
 
 - name: Set up IPA Server (without DNS forwarding)
   command: >
@@ -57,7 +57,7 @@
     -a '{{ idm_admin_pwd }}' --setup-dns --auto-reverse --reverse-zone '{{ idm_reverse_zone }}' --no-forwarders
   when: idm_forward_ip is not defined
   register: ipa_server_install_disconnected_results
-  changed_when: "success" in ipa_server_install_disconnected_results.stdout
+  changed_when: '"success" in ipa_server_install_disconnected_results.stdout'
 
 - name: waiting for IDM services to come up
   wait_for:
@@ -70,8 +70,8 @@
 
 - name: disable dns forwarding on IDM server for disconnected install
   shell: >
-    "echo '{{ idm_admin_pwd }}' | kinit admin && ipa dnsserver-mod --forward-policy=none
-    {{ idm_hostname }}.{{ domain }}"
+    echo '{{ idm_admin_pwd }}' | kinit admin && ipa dnsserver-mod --forward-policy=none
+    {{ idm_hostname }}.{{ domain }}
   ignore_errors: true
   when: idm_forward_ip is not defined
   changed_when: false
