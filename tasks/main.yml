@@ -69,13 +69,13 @@
   command: "echo {{ idm_admin_pwd }} | kinit admin && ipa dnszone-mod {{ item }} --dynamic-update=TRUE"
   with_items:
     - "{{ domain }}"
-    - "{{ idm_reverse_zone}}"
+    - "{{ idm_reverse_zone }}"
 
 - name: enable allow ptr sync on dns zones
   command: "echo {{ idm_admin_pwd }} | kinit admin && ipa dnszone-mod --allow-sync-ptr=1 {{ item }}"
   with_items:
     - "{{ domain }}"
-    - "{{ idm_reverse_zone}}"
+    - "{{ idm_reverse_zone }}"
 
 - name: remove temporary nameserver from /etc/resolv.conf file
   lineinfile:
