@@ -1,2 +1,9 @@
 ---
 # handlers file for idm
+
+- name: restart server
+  shell: sleep 2 && shutdown -r now "Ansible restart triggered for latest kernel"
+  async: 1
+  poll: 0
+  ignore_errors: true
+  when: yum_result.changed or reboot_hint.stdout.find("reboot") != -1

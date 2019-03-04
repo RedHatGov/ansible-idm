@@ -19,23 +19,21 @@
   async: 1000
   poll: 30
 
-- name: check Kernel is the Latest
-  shell: >
-    if [ $(uname -r) == $(rpm -q kernel | tail -n 1 | sed -e 's/kernel-//g') ] ; then echo no ; else echo reboot; fi
-  ignore_errors: true
-  register: reboot_hint
-
 - name: install IPA packages
   yum:
     name: "{{ idm_packages }}"
     state: latest
 
-- name: restart server to get updated kernel
-  shell: sleep 2 && shutdown -r now "Ansible restart triggered for latest kernel"
-  async: 1
-  poll: 0
+- name: check Kernel is the Latest
+  shell: >
+    if [ $(uname -r) == $(rpm -q kernel | tail -n 1 | sed -e 's/kernel-//g') ] ; then echo no ; else echo reboot; fi
   ignore_errors: true
-  when: yum_result.changed or reboot_hint.stdout.find("reboot") != -1
+  register: reboot_hint
+  changed_when: "reboot" in reboot_hint.stdout
+  notify: reboot system
+
+- name: flush hanlers
+  meta: flush_handlers
 
 - name: waiting for IDM server to come back online
   wait_for_connection:
@@ -50,12 +48,16 @@
     -a '{{ idm_admin_pwd }}' --setup-dns --auto-reverse --reverse-zone '{{ idm_reverse_zone }}'
     --forwarder '{{ idm_forward_ip }}'
   when: idm_forward_ip is defined
+  register: ipa_server_install_results
+  changed_when: "success" in ipa_server_install_results.stdout
 
 - name: Set up IPA Server (without DNS forwarding)
   command: >
     ipa-server-install -Uq -r '{{ idm_realm }}' -n '{{ domain }}' --allow-zone-overlap -p '{{ idm_dm_pwd }}'
     -a '{{ idm_admin_pwd }}' --setup-dns --auto-reverse --reverse-zone '{{ idm_reverse_zone }}' --no-forwarders
   when: idm_forward_ip is not defined
+  register: ipa_server_install_disconnected_results
+  changed_when: "success" in ipa_server_install_disconnected_results.stdout
 
 - name: waiting for IDM services to come up
   wait_for:
@@ -72,18 +74,21 @@
     {{ idm_hostname }}.{{ domain }}
   ignore_errors: true
   when: idm_forward_ip is not defined
+  changed_when: false
 
 - name: enable dynamic updates on dns zones
   command: "echo {{ idm_admin_pwd }} | kinit admin && ipa dnszone-mod {{ item }} --dynamic-update=TRUE"
   with_items:
     - "{{ domain }}"
     - "{{ idm_reverse_zone }}"
+  changed_when: false
 
 - name: enable allow ptr sync on dns zones
   command: "echo {{ idm_admin_pwd }} | kinit admin && ipa dnszone-mod --allow-sync-ptr=1 {{ item }}"
   with_items:
     - "{{ domain }}"
     - "{{ idm_reverse_zone }}"
+  changed_when: false
 
 - name: remove temporary nameserver from /etc/resolv.conf file
   lineinfile:
