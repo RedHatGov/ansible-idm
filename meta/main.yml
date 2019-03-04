@@ -17,5 +17,5 @@ galaxy_info:
     - rhel
 
 dependencies:
-  - RedHatGov.kvm_vm
-  - RedHatGov.rhsm
+  - redhatgov.kvm_vm
+  - redhatgov.rhsm

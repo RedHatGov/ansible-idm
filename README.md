@@ -39,8 +39,8 @@ Role Variables
 Dependencies
 ------------
 
-- RedHatGov.kvm_vm
-- RedHatGov.rhsm
+- redhatgov.kvm_vm
+- redhatgov.rhsm
 
 Example Playbook
 ----------------
@@ -149,7 +149,7 @@ Example Playbook
       vars:
         rhsm_repos: "{{ idm_repos }}"
       include_role:
-        name: RedHatGov.rhsm
+        name: redhatgov.rhsm
       tags: install
 
     - name: Install IDM

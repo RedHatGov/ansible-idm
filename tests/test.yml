@@ -101,7 +101,7 @@
       vars:
         rhsm_repos: "{{ idm_repos }}"
       include_role:
-        name: RedHatGov.rhsm
+        name: redhatgov.rhsm
       tags: install
 
     - name: Install IDM

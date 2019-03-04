@@ -3,5 +3,5 @@
   vars:
     kvm_vm_hostname: "{{ idm_hostname }}"
   include_role:
-    name: RedHatGov.kvm_vm
+    name: redhatgov.kvm_vm
     tasks_from: teardown_kvm_vm
