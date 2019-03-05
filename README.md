@@ -1,12 +1,12 @@
 idm
 =========
 
-This role provisions, installs, and configures RHEL Identity Manager (IdM).
+This role installs and configures RHEL Identity Manager (IdM).
 
 Requirements
 ------------
 
-- Expects a working RHEL+KVM hypervisor to target
+- Expects a working RHEL 7 system to target
 - Red Hat Network account with a RHEL subscription available
 
 Role Variables
@@ -39,7 +39,6 @@ Role Variables
 Dependencies
 ------------
 
-- RedHatGov.kvm_vm
 - RedHatGov.rhsm
 
 Example Playbook
