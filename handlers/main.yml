@@ -1,7 +1,7 @@
 ---
 # handlers file for idm
 
-- name: restart server
+- name: reboot system
   shell: sleep 2 && shutdown -r now "Ansible restart triggered for latest kernel"
   async: 1
   poll: 0

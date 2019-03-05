@@ -53,14 +53,8 @@
          record_type: A
          ip_address: 192.168.0.3
          reverse_record: 3.0
+    rhsm_repos: "{{ idm_repos }}"
   tasks:
-    - name: Register to RHSM
-      vars:
-        rhsm_repos: "{{ idm_repos }}"
-      include_role:
-        name: RedHatGov.rhsm
-      tags: install
-
     - name: Install IDM
       include_role:
         name: idm
