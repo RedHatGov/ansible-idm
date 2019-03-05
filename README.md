@@ -101,7 +101,6 @@ Example Playbook
          record_type: A
          ip_address: 192.168.0.3
          reverse_record: 3.0
-    rhsm_repos: "{{ idm_repos }}"
   tasks:
     - name: Install IDM
       include_role:
