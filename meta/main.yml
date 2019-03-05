@@ -17,4 +17,6 @@ galaxy_info:
     - rhel
 
 dependencies:
-  - RedHatGov.rhsm
+  - role: RedHatGov.rhsm
+    vars:
+      rhsm_repos: "{{ idm_repos }}"
