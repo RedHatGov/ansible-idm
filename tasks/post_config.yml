@@ -1,4 +1,4 @@
-- name: add users to IDM
+- name: Add users to IDM
   ipa_user:
     ipa_host: "{{ idm_hostname }}.{{ domain }}"
     ipa_user: admin
@@ -16,9 +16,9 @@
     - "{{ item.phone }}"
   with_items:
     - "{{ idm_users }}"
-  tags: post-config
+  tags: configure
 
-- name: add forward DNS entries to IDM
+- name: Add forward DNS entries to IDM
   ipa_dnsrecord:
     ipa_host: "{{ idm_hostname }}.{{ domain }}"
     ipa_user: admin
@@ -28,12 +28,12 @@
     record_name: "{{ item.hostname }}"
     record_type: "A"
     record_value: "{{ item.ip_address }}"
-    record_ttl: 500
+    #record_ttl: 500
   with_items:
     - "{{ idm_dns_records }}"
-  tags: post-config
+  tags: configure
 
-- name: add reverse DNS entries to IDM
+- name: Add reverse DNS entries to IDM
   ipa_dnsrecord:
     ipa_host: "{{ idm_hostname }}.{{ domain }}"
     ipa_user: admin
@@ -43,7 +43,7 @@
     record_name: "{{ item.reverse_record }}"
     record_type: 'PTR'
     record_value: "{{ item.hostname }}.{{ domain }}"
-    record_ttl: 500
+    #record_ttl: 500
   with_items:
     - "{{ idm_dns_records }}"
-  tags: post-config
+  tags: configure
