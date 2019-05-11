@@ -1,36 +1,57 @@
 ---
-# defaults file for idm
+# defaults file for idm install
+idm_packages:
+  - ipa-server
+  - ipa-server-dns
 domain: hattrick.lab
 dns_server_public: 1.1.1.1
-idm_hostname: [] #Short hostname only
-idm_ssh_user: root
-idm_ssh_pwd: p@ssw0rd
-idm_public_ip: []
-idm_base_img: []
-idm_vcpus: 1
-idm_ram: 4096 #In Megabytes
-idm_os_disk_name: []
-idm_os_disk_size: 45G
-idm_nics:
-  - name: eth0
-    bootproto: static
-    onboot: yes
-    ip: []
-    prefix: []
-    gateway: []
-    dns_server: "{{ dns_server_public }}"
-    config: "--type network --source default --model virtio"
-idm_realm: []
-idm_dm_pwd: []
-idm_admin_pwd: []
+idm_hostname: "" #Short hostname only
+idm_public_ip: "" #ip address of the server or blank for ansible to detect and use eth0
+idm_dm_pwd: ""
+idm_admin_pwd: ""
+idm_domain: "{{ domain }}"
+idm_realm: "{{ domain | upper }}"
 #NOTE: if disconnected installation, do not provide forward_ip
-idm_forward_ip: []
-idm_reverse_zone: []
-idm_repos:
-    - rhel-7-server-rpms
-    - rhel-7-server-extras-rpms
-idm_packages:
-    - ipa-server
-    - ipa-server-dns
-idm_users: []
-idm_dns_records: []
+idm_forward_ip: "{{ dns_server_public }}"
+
+# ZONES
+idm_reverse_zones:
+  - 10.168.192.in-addr.arpa.
+idm_forward_zones:
+  - hatrick.lab.
+
+# ipa-server-install cli arguments
+idm_idstart: ""                   # (--idstart) The starting user and group id number 
+idm_idmax: ""                     # (--idmax) The  maximum  user  and  group  id  number
+idm_mkhomedir: True               # (--mkhomedir)
+idm_setup_dns: True               # (--setup-dns)
+idm_ssh_trust_dns: True           # (--ssh-trust-dns) Configure OpenSSH client to trust DNS SSHFP records.
+idm_hbac_allow: True              # (--no-hbac-allow) Don't install allow_all HBAC rule. 
+idm_setup_ntp: True               # Set to Flase to set (--no-ntp)
+idm_configure_ssh: True           # Set to false to disable ssh client (--no-ssh)
+idm_configure_sshd: True          # Set to False to not configure the SSH server (--no-sshd)
+idm_ui_redirect: True             # Set to False to not redirect to UI (--no-ui-redirect)
+idm_host_dns: False               # Do not use DNS for hostname lookup during install (--no-host-dns)
+idm_auto_reverse: True            # Creates reverse zone if not exist (--auto-reverse)
+idm_setup_kra: False              # Set to true to install secret service (--setup-kra)
+idm_zone_overlap: False           # Create zone if it already exists (--allow-zone-overlap)
+idm_zones:
+  - "{{ idm_reverse_zones }}"
+  - "{{ idm_forward_zones }}"
+
+# IDM Post configuration
+idm_users:
+   - username: ""
+     password: ""
+     display_name: ""
+     first_name: ""
+     last_name: ""
+     email: ""
+     phone: ""
+     title: ""
+
+idm_dns_records:
+   - hostname: ""
+     record_type: ""
+     ip_address: ""
+     reverse_record: ""
