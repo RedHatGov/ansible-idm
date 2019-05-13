@@ -9,6 +9,7 @@ idm_hostname: "" #Short hostname only
 idm_public_ip: "" #ip address of the server or blank for ansible to detect and use eth0
 idm_dm_pwd: ""
 idm_admin_pwd: ""
+idm_admin_user: admin
 idm_domain: "{{ domain }}"
 idm_realm: "{{ domain | upper }}"
 #NOTE: if disconnected installation, do not provide forward_ip
@@ -21,6 +22,7 @@ idm_forward_zones:
   - hatrick.lab.
 
 # ipa-server-install cli arguments
+installer_cmd: /root/ipa-srv-install.sh
 idm_idstart: ""                   # (--idstart) The starting user and group id number 
 idm_idmax: ""                     # (--idmax) The  maximum  user  and  group  id  number
 idm_mkhomedir: True               # (--mkhomedir)
@@ -40,6 +42,7 @@ idm_zones:
   - "{{ idm_forward_zones }}"
 
 # IDM Post configuration
+default_pass_expire: 20180121182022
 idm_users:
    - username: ""
      password: ""
@@ -49,9 +52,11 @@ idm_users:
      email: ""
      phone: ""
      title: ""
+     state: ""
 
 idm_dns_records:
    - hostname: ""
      record_type: ""
      ip_address: ""
      reverse_record: ""
+     state: ""
