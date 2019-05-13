@@ -68,17 +68,6 @@ Example Playbook
     idm_ssh_user: root
     idm_ssh_pwd: redhat
     idm_public_ip: "192.168.0.4"
-    idm_base_img: rhel-guest-image-7.qcow2 #Name of base image in /var/lib/libvirt/images on KVM hypervisor
-    idm_os_disk_name: "{{ idm_hostname }}"
-    idm_nics:
-      - name: eth0
-        bootproto: static
-        onboot: yes
-        ip: "{{ idm_public_ip }}"
-        prefix: "24"
-        gateway: "192.168.0.1"
-        dns_server: "{{ dns_server_public }}"
-        config: "--type bridge --source br1 --model virtio"
     idm_repos:
       - rhel-7-server-rpms
       - rhel-7-server-extras-rpms
@@ -117,13 +106,13 @@ Example Playbook
     - name: Install IDM
       include_role:
         name: idm
-      tags: install
+      tags: [install,preinstall,installer,firewall,always,result]
 
     - name: Configure IDM
       include_role:
         name: idm
         tasks_from: post_config
-      tags: post-config
+      tags: [install,preinstall,installer,firewall,always,result]
 ```
 
 License
