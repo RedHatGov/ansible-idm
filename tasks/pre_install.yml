@@ -1,0 +1,46 @@
+---
+# tasks file for idm
+
+- name: setup up firewalld rules
+  include: firewalld.yml
+  tags: [preinstall,firewall]
+
+- name: set hostname
+  hostname:
+    name: "{{ idm_hostname }}.{{ domain }}"
+  tags: [preinstall]
+
+- name: update packages
+  yum:
+    name: '*'
+    state: latest
+  register: yum_result
+  async: 1000
+  poll: 30
+  tags: [preinstall,update]
+
+- name: install IPA packages
+  yum:
+    name: "{{ idm_packages }}"
+    state: latest
+  tags: [preinstall,install_pkgs]
+
+- name: check Kernel is the Latest
+  shell: >
+    if [ $(uname -r) == $(rpm -q kernel | tail -n 1 | sed -e 's/kernel-//g') ] ; then echo no ; else echo reboot; fi
+  ignore_errors: true
+  register: reboot_hint
+  changed_when: '"reboot" in reboot_hint.stdout'
+  notify: reboot system
+  tags: [preinstall,check_kernel]
+
+- name: flush hanlers
+  meta: flush_handlers
+
+- name: waiting for IDM server to come back online
+  wait_for_connection:
+    connect_timeout: 20
+    sleep: 5
+    delay: 5
+    timeout: 300
+  tags: [preinstall,check_kernel]

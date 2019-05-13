@@ -1,0 +1,90 @@
+---
+# tasks file for idm
+
+- name: check if dirsrv exists
+  find:
+    paths: /etc/dirsrv/
+    patterns: "{{ idm_realm }}*.pem"
+    recurse: yes
+  register: dirsrv_results
+  ignore_errors: yes
+  tags: [ always,install ]
+
+- fail:
+    msg: >
+          "Attempting to ipa-server but it appears it's already installed.
+          Perhaps the admin password has expired? Otherwise you may want to uninstall with
+          ipa-server-install --uninstall"
+  when: not dirsrv_results.failed
+  tags: [ always ]
+
+- name: add line to hosts file for self
+  lineinfile:
+    dest: /etc/hosts
+    state: present
+    regexp: "^{{ idm_public_ip }}"
+    line: "{{ idm_public_ip }} {{ idm_hostname }}.{{ domain }} {{ idm_hostname }}"
+  tags: [ install ]
+
+- name: create template script for ipa-install
+  template:
+    src: ipa-server-install.j2
+    dest: "{{ installer_cmd }}"
+    owner: root
+    group: root
+    mode: 0744
+  tags: [ install,installer ]
+
+- name: Run the installer
+  shell: "{{ installer_cmd }}"
+  args:
+    creates: /etc/dirsrv/slapd-*
+  environment:
+    ADMIN_PASSWORD: "{{ idm_admin_password | default('none') }}"
+    DM_PASSWORD: "{{ idm_dirsrv_admin_password | default('none') }}"
+  tags: [ install,installer ]
+
+- name: waiting for IDM services to come up
+  wait_for:
+    host: "{{ idm_public_ip }}"
+    port: 443
+    state: started
+    delay: 10
+    connect_timeout: 300
+    sleep: 5
+  tags: [ install,installer ]
+
+- include: check_install.yml
+  tags: [ install,postinstall ]
+
+- name: disable dns forwarding on IDM server for disconnected install
+  shell: "echo '{{ idm_admin_pwd }}' | kinit admin && ipa dnsserver-mod --forward-policy=none {{ idm_hostname }}.{{ domain }}"
+  ignore_errors: true
+  when: idm_forward_ip is not defined and idm_is_installed
+  changed_when: false
+  tags: [ install,postinstall ]
+
+- name: enable dynamic updates on dns zones
+  command: "echo {{ idm_admin_pwd }} | kinit admin && ipa dnszone-mod {{ item }} --dynamic-update=TRUE"
+  with_items:
+    - "{{ domain }}"
+    - "{{ idm_reverse_zone }}"
+  changed_when: false
+  when: idm_is_installed
+  tags: [ install,postinstall ]
+
+- name: enable allow ptr sync on dns zones
+  command: "echo {{ idm_admin_pwd }} | kinit admin && ipa dnszone-mod --allow-sync-ptr=1 {{ item }}"
+  with_items:
+    - "{{ domain }}"
+    - "{{ idm_reverse_zone }}"
+  changed_when: false
+  when: idm_is_installed
+  tags: [ install,postinstall ]
+
+- name: remove temporary nameserver from /etc/resolv.conf file
+  lineinfile:
+    dest: /etc/resolv.conf
+    line: "nameserver {{ dns_server_public }}"
+    state: absent
+  tags: [ install,postinstall ]
