@@ -1,0 +1,42 @@
+---
+- name: Make sure firewalld is installed
+  yum: 
+    name: firewalld 
+    state: present
+  when: ansible_os_family == "RedHat"
+  tags: [firewall]
+
+- name: Enable and start firewalld
+  service: 
+    name: firewalld
+    state: started 
+    enabled: yes
+  tags: [firewall]
+
+- name: Enable IDAM ldap, ldaps and replication ports
+  firewalld:
+    service: "{{ item }}"
+    permanent: true
+    state: enabled
+  notify: reload firewalld
+  with_items:
+    - freeipa-ldaps
+    - freeipa-ldap
+    - freeipa-replication
+  tags: [firewall]
+
+- name: Enable DNS port 53/tcp
+  firewalld:
+    port: 53/tcp
+    permanent: true
+    state: enabled
+  notify: reload firewalld
+  tags: [firewall]
+
+- name: Enable DNS port 53/udp
+  firewalld:
+    port: 53/udp
+    permanent: true
+    state: enabled
+  notify: reload firewalld
+  tags: [firewall]

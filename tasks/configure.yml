@@ -1,0 +1,68 @@
+- name: Add users to IDM
+  ipa_user:
+    ipa_host: "{{ idm_hostname }}.{{ domain }}"
+    ipa_user: "{{ idm_admin_user }}"
+    ipa_pass: "{{ idm_admin_pwd }}"
+    state: "{{ item.state }}"
+    uid: "{{ item.username }}"
+    #password: "{{ item.password }}"
+    #krbpasswordexpiration: "{{ item.pass_expire | default(default_pass_expire) }}"
+    displayname: "{{ item.display_name }}"
+    givenname: "{{ item.first_name }}"
+    sn: "{{ item.last_name }}"
+    title: "{{ item.title }}"
+    mail:
+    - "{{ item.email }}"
+    telephonenumber:
+    - "{{ item.phone }}"
+  with_items:
+    - "{{ idm_users }}"
+  loop_control:
+    label: "{{ item.username }}"
+  register: idm_users_added 
+  tags: configure
+
+- name: set IDM user password
+  ipa_user:
+    ipa_host: "{{ idm_hostname }}.{{ domain }}"
+    ipa_user: "{{ idm_admin_user }}"
+    ipa_pass: "{{ idm_admin_pwd }}"
+    state: "{{ item.item.state }}"
+    uid: "{{ item.item.username }}"
+    password: "{{ item.item.password }}"
+    krbpasswordexpiration: "{{ item.item.pass_expire | default(default_pass_expire) }}"
+  loop: "{{ idm_users_added.results }}"
+  loop_control:
+    label: "{{ item.item.username }}"
+  when: item is changed 
+  tags: configure
+
+- name: Add forward DNS entries to IDM
+  ipa_dnsrecord:
+    ipa_host: "{{ idm_hostname }}.{{ domain }}"
+    ipa_user: "{{ idm_admin_user }}"
+    ipa_pass: "{{ idm_admin_pwd }}"
+    state: "{{ item.state }}"
+    zone_name: "{{ domain }}"
+    record_name: "{{ item.hostname }}"
+    record_type: "{{ item.record_type }}"
+    record_value: "{{ item.ip_address }}"
+    record_ttl: "{{ item.ttl }}"
+  with_items:
+    - "{{ idm_dns_records }}"
+  tags: configure
+
+- name: Add reverse DNS entries to IDM
+  ipa_dnsrecord:
+    ipa_host: "{{ idm_hostname }}.{{ domain }}"
+    ipa_user: "{{ idm_admin_user }}"
+    ipa_pass: "{{ idm_admin_pwd }}"
+    state: "{{ item.state }}"
+    zone_name: "{{ item.zone }}"
+    record_name: "{{ item.reverse_record }}"
+    record_type: 'PTR'
+    record_value: "{{ item.hostname }}.{{ domain }}."
+    record_ttl: "{{ item.ttl }}"
+  with_items:
+    - "{{ idm_dns_records }}"
+  tags: configure

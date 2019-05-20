@@ -1,0 +1,16 @@
+---
+# tasks file for idm
+
+- name: check if satellite is answering
+  uri:
+    url: "https://{{ idm_hostname }}.{{ domain }}/ipa/ui"
+    user: "{{ idm_admin_user }}"
+    password: "{{ idm_admin_password }}"
+    force_basic_auth: yes
+  register: idm_is_installed
+  ignore_errors: yes
+  tags: [always]
+
+- set_fact:
+    idm_is_installed: "{{ False if idm_is_installed.failed | default(False) or idm_is_installed.status != 200 else True }}"
+  tags: [always]

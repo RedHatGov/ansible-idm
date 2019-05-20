@@ -20,12 +20,6 @@ Role Variables
 | `idm_ssh_user` | :x:      | ```root``` | The default user to use for SSH access to IdM |
 | `idm_ssh_pwd` | :x:      | ```p@ssw0rd``` | The default password to use for SSH access to IdM. Obviously you'd change this :) |
 | `idm_public_ip` | :heavy_check_mark:      |  | The reachable public IP for IdM |
-| `idm_base_img` | :heavy_check_mark:      |  | Name of the base image located in /var/lib/libvirt/images on the KVM hypervisor |
-| `idm_vcpus` | :x:      | ```1``` | Number of vCPUS to assign to IdM |
-| `idm_ram` | :x:      | ```4096``` | Amount of ram to give to IdM in megabytes |
-| `idm_os_disk_name` | :x:      | ```{{ idm_hostname }}``` | Name of the OS disk in /var/lib/libvirt/images |
-| `idm_os_disk_size` | :x:      | ```45G``` | Size of OS disk for IdM |
-| `idm_nics` | :heavy_check_mark:      | ```see example playbook``` | Dictionary of NICs to create for IdM (only needs one) |
 | `idm_repos` | :x:      | ```see defaults/main.yml``` | Dictionary of Repos to enable for IdM |
 | `idm_packages` | :x:      | ```see defaults/main.yml``` | Dictionary of Packages to create for IdM |
 | `idm_realm` | :heavy_check_mark:      |  | Identity Realm for IdM (ex: HATTRICK.LAB) |
@@ -35,6 +29,25 @@ Role Variables
 | `idm_reverse_zone` | :heavy_check_mark:      |  | Reverse zone to create in IdM (ex: "168.192.in-addr.arpa.") |
 | `idm_users` | :heavy_check_mark:      |  | Dictionary of users to create in IdM post configuration |
 | `idm_dns_records` | :heavy_check_mark:      |  | Dictionary of DNS records to create in IdM post configuration |
+| `idm_domain` | :x: | ```{{ domain }}``` | The domain for the IDM server |
+| `idm_reverse_zones` | :x:      | ```see defaults/main.yml``` | List of all reverse zones to create |
+| `idm_forward_zones` | :x:      | ```see defaults/main.yml``` | List of all forward zones to create |
+| `idm_idstart` | :x:      | ```see defaults/main.yml``` | (--idstart) The starting user and group id number  |
+| `idm_idmax` | :x:      | ```see defaults/main.yml``` | (--idmax) The  maximum  user  and  group  id  number |
+| `idm_mkhomedir` | :x:      | ```see defaults/main.yml``` | (--mkhomedir) |
+| `idm_setup_dns` | :x:      | ```see defaults/main.yml``` | (--setup-dns) |
+| `idm_ssh_trust_dns` | :x:      | ```see defaults/main.yml``` | (--ssh-trust-dns) Configure OpenSSH client to trust DNS SSHFP records. |
+| `idm_hbac_allow` | :x:      | ```see defaults/main.yml``` | (--no-hbac-allow) Don't install allow_all HBAC rule |
+| `idm_setup_ntp` | :x:      | ```see defaults/main.yml``` | Set to Flase to set (--no-ntp) |
+| `idm_configure_ssh` | :x:      | ```see defaults/main.yml``` | Set to false to disable ssh client (--no-ssh) |
+| `idm_configure_sshd` | :x:      | ```see defaults/main.yml``` | Set to False to not configure the SSH server (--no-sshd) |
+| `idm_ui_redirect` | :x:      | ```see defaults/main.yml``` | Set to False to not redirect to UI (--no-ui-redirect)|
+| `idm_host_dns` | :x:      | ```see defaults/main.yml``` | Do not use DNS for hostname lookup during install (--no-host-dns) |
+| `idm_auto_reverse` | :x:      | ```see defaults/main.yml``` | Creates reverse zone if not exist (--auto-reverse) |
+| `idm_setup_kra` | :x:      | ```see defaults/main.yml``` | Set to true to install secret service (--setup-kra) |
+| `idm_zone_overlap` | :x:      | ```see defaults/main.yml``` | Create zone if it already exists (--allow-zone-overlap) |
+| `idm_zones` | :x:      | ```{{ idm_reverse_zones }},{{ idm_forward_zones }}``` | Sets up array of all zones |
+
 
 Dependencies
 ------------
@@ -55,17 +68,6 @@ Example Playbook
     idm_ssh_user: root
     idm_ssh_pwd: redhat
     idm_public_ip: "192.168.0.4"
-    idm_base_img: rhel-guest-image-7.qcow2 #Name of base image in /var/lib/libvirt/images on KVM hypervisor
-    idm_os_disk_name: "{{ idm_hostname }}"
-    idm_nics:
-      - name: eth0
-        bootproto: static
-        onboot: yes
-        ip: "{{ idm_public_ip }}"
-        prefix: "24"
-        gateway: "192.168.0.1"
-        dns_server: "{{ dns_server_public }}"
-        config: "--type bridge --source br1 --model virtio"
     idm_repos:
       - rhel-7-server-rpms
       - rhel-7-server-extras-rpms
@@ -104,13 +106,13 @@ Example Playbook
     - name: Install IDM
       include_role:
         name: idm
-      tags: install
+      tags: [install,preinstall,installer,firewall,always,result]
 
     - name: Configure IDM
       include_role:
         name: idm
         tasks_from: post_config
-      tags: post-config
+      tags: [install,preinstall,installer,firewall,always,result]
 ```
 
 License

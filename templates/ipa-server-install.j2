@@ -1,0 +1,28 @@
+ipa-server-install \
+-U \
+-d \
+--realm {{ idm_realm }} \
+--domain {{ idm_domain }} \
+-a $ADMIN_PASSWORD \
+-p $DIR_PASSWORD \
+--hostname={{ hostname | default(ansible_fqdn)}} \
+--ip-address={{ idm_public_ip |default(ansible_eth0.ipv4.address) }} \
+{{ '--idstart=%s' % idm_idstart if idm_idstart | default(False) else '' }} \
+{{ '--idmax=%s' % idm_idmax if idm_idmax | default(False) else ' ' }} \
+{{ '--forwarder=%s' % idm_forward_ip
+   if idm_forward_ip | default(False) else '--no-forwarders' }} \
+{{ '--mkhomedir' if idm_mkhomedir | default(True) else '' }} \
+{{ '--setup-dns' if idm_setup_dns | default(True) else '' }} \
+{{ '--ssh-trust-dns' if idm_ssh_trust_dns | default(True) else '' }} \
+{{ '' if idm_hbac_allow | default(True) else '--no-hbac-allow' }} \
+{{ '' if idm_setup_ntp | default(True) else '--no-ntp' }} \
+{{ '' if idm_configure_ssh | default(True) else '--no-ssh' }} \
+{{ '' if idm_configure_sshd | default(True) else '--no-sshd' }} \
+{{ '' if idm_ui_redirect | default(True) else '--no-ui-redirect' }} \
+{{ '--no-host-dns' if idm_host_dns | default(True) else ''}} \
+{{ '--auto-reverse' if idm_auto_reverse | default(True) else '' }} \
+{{ '--setup-kra' if idm_setup_kra | default(True) else '' }} \
+{{ '--allow-zone-overlap' if idm_zone_overlap | default(False) else '' }} \
+{% for zone in idm_reverse_zones %}
+--reverse-zone={{ zone }} \
+{% endfor %}
