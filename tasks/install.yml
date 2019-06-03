@@ -40,8 +40,8 @@
   args:
     creates: /etc/dirsrv/slapd-*
   environment:
-    ADMIN_PASSWORD: "{{ idm_admin_password | default('none') }}"
-    DM_PASSWORD: "{{ idm_dirsrv_admin_password | default('none') }}"
+    ADMIN_PASSWORD: "{{ idm_admin_pwd | default('none') }}"
+    DM_PASSWORD: "{{ idm_dirsrv_admin_pwd | default('none') }}"
   tags: [ install,installer ]
 
 - name: waiting for IDM services to come up

@@ -5,7 +5,7 @@
   uri:
     url: "https://{{ idm_hostname }}.{{ domain }}/ipa/ui"
     user: "{{ idm_admin_user }}"
-    password: "{{ idm_admin_password }}"
+    password: "{{ idm_admin_pwd }}"
     force_basic_auth: yes
   register: idm_is_installed
   ignore_errors: yes
