@@ -6,6 +6,9 @@
   when: ansible_os_family == "RedHat"
   tags: [firewall]
 
+- name: Update selinux settings on ifcfg files
+  command: "semanage fcontext -a -t net_conf_t /etc/sysconfig/network-scripts/ifcfg-* && restorecon -R /etc/sysconfig/network-scripts/ifcfg-*'"
+
 - name: Enable and start firewalld
   service: 
     name: firewalld
