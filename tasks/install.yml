@@ -15,7 +15,7 @@
           "Attempting to ipa-server but it appears it's already installed.
           Perhaps the admin password has expired? Otherwise you may want to uninstall with
           ipa-server-install --uninstall"
-  when: not dirsrv_results.failed
+  when: dirsrv_results.failed
   tags: [ always ]
 
 - name: add line to hosts file for self
