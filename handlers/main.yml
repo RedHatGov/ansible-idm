@@ -7,6 +7,3 @@
   poll: 0
   ignore_errors: true
   when: yum_result.changed or reboot_hint.stdout.find("reboot") != -1
-
-- name: reload firewalld
-  command: firewall-cmd --reload
