@@ -7,7 +7,7 @@
   tags: [firewall]
 
 - name: Update selinux settings on ifcfg files
-  command: "semanage fcontext -a -t net_conf_t /etc/sysconfig/network-scripts/ifcfg-* && restorecon -R /etc/sysconfig/network-scripts/ifcfg-*'"
+  command: "semanage fcontext -a -t net_conf_t /etc/sysconfig/network-scripts/ifcfg-e* && restorecon -R /etc/sysconfig/network-scripts/ifcfg-e*'"
 
 - name: Enable and start firewalld
   service: 
