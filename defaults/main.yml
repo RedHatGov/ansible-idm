@@ -16,10 +16,8 @@ idm_realm: "{{ domain | upper }}"
 idm_forward_ip: "{{ dns_server_public }}"
 
 # ZONES
-idm_reverse_zones:
-  - 10.168.192.in-addr.arpa.
-idm_forward_zones:
-  - hatrick.lab.
+idm_reverse_zones: []
+idm_forward_zones: []
 
 # ipa-server-install cli arguments
 installer_cmd: /root/ipa-srv-install.sh
@@ -52,11 +50,9 @@ idm_users:
      email: ""
      phone: ""
      title: ""
-     state: ""
 
 idm_dns_records:
    - hostname: ""
      record_type: ""
      ip_address: ""
      reverse_record: ""
-     state: ""

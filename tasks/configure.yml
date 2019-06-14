@@ -3,10 +3,8 @@
     ipa_host: "{{ idm_hostname }}.{{ domain }}"
     ipa_user: "{{ idm_admin_user }}"
     ipa_pass: "{{ idm_admin_pwd }}"
-    state: "{{ item.state }}"
+    state: present
     uid: "{{ item.username }}"
-    #password: "{{ item.password }}"
-    #krbpasswordexpiration: "{{ item.pass_expire | default(default_pass_expire) }}"
     displayname: "{{ item.display_name }}"
     givenname: "{{ item.first_name }}"
     sn: "{{ item.last_name }}"
@@ -27,7 +25,7 @@
     ipa_host: "{{ idm_hostname }}.{{ domain }}"
     ipa_user: "{{ idm_admin_user }}"
     ipa_pass: "{{ idm_admin_pwd }}"
-    state: "{{ item.item.state }}"
+    state: present
     uid: "{{ item.item.username }}"
     password: "{{ item.item.password }}"
     krbpasswordexpiration: "{{ item.item.pass_expire | default(default_pass_expire) }}"
@@ -42,12 +40,12 @@
     ipa_host: "{{ idm_hostname }}.{{ domain }}"
     ipa_user: "{{ idm_admin_user }}"
     ipa_pass: "{{ idm_admin_pwd }}"
-    state: "{{ item.state }}"
+    state: present
     zone_name: "{{ domain }}"
     record_name: "{{ item.hostname }}"
     record_type: "{{ item.record_type }}"
     record_value: "{{ item.ip_address }}"
-    record_ttl: "{{ item.ttl }}"
+    record_ttl: 300
   with_items:
     - "{{ idm_dns_records }}"
   tags: configure
@@ -57,12 +55,12 @@
     ipa_host: "{{ idm_hostname }}.{{ domain }}"
     ipa_user: "{{ idm_admin_user }}"
     ipa_pass: "{{ idm_admin_pwd }}"
-    state: "{{ item.state }}"
+    state: present
     zone_name: "{{ item.zone }}"
     record_name: "{{ item.reverse_record }}"
     record_type: 'PTR'
     record_value: "{{ item.hostname }}.{{ domain }}."
-    record_ttl: "{{ item.ttl }}"
+    record_ttl: 300
   with_items:
     - "{{ idm_dns_records }}"
   tags: configure
