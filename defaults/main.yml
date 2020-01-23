@@ -55,4 +55,5 @@ idm_dns_records:
    - hostname: ""
      record_type: ""
      ip_address: ""
+     reverse_zone: ""
      reverse_record: ""

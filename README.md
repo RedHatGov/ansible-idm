@@ -95,14 +95,17 @@ Example Playbook
        - hostname: router
          record_type: A
          ip_address: 192.168.0.1
+         reverse_zone: "{{ idm_reverse_zone }}"
          reverse_record: 1.0
        - hostname: switch
          record_type: A
          ip_address: 192.168.0.2
+         reverse_zone: "{{ idm_reverse_zone }}"
          reverse_record: 2.0
        - hostname: kvm
          record_type: A
          ip_address: 192.168.0.3
+         reverse_zone: "{{ idm_reverse_zone }}"
          reverse_record: 3.0
   tasks:
     - name: Install IDM

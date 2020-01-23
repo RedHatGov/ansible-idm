@@ -17,7 +17,7 @@
     - "{{ idm_users }}"
   loop_control:
     label: "{{ item.username }}"
-  register: idm_users_added 
+  register: idm_users_added
   tags: configure
 
 - name: set IDM user password
@@ -32,7 +32,7 @@
   loop: "{{ idm_users_added.results }}"
   loop_control:
     label: "{{ item.item.username }}"
-  when: item is changed 
+  when: item is changed
   tags: configure
 
 - name: Add forward DNS entries to IDM
@@ -56,7 +56,7 @@
     ipa_user: "{{ idm_admin_user }}"
     ipa_pass: "{{ idm_admin_pwd }}"
     state: present
-    zone_name: "{{ item.zone }}"
+    zone_name: "{{ item.reverse_zone }}"
     record_name: "{{ item.reverse_record }}"
     record_type: 'PTR'
     record_value: "{{ item.hostname }}.{{ domain }}."
