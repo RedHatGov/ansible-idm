@@ -3,6 +3,8 @@ idm
 
 This role installs and configures RHEL Identity Manager (IdM).
 
+> NOTE: This role will be deprecated in favor of the roles available in the [FreeIPA collection](https://github.com/freeipa/ansible-freeipa)
+
 Requirements
 ------------
 
